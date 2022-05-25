@@ -1,0 +1,36 @@
+version: '3.9'
+
+networks:
+  dev_network:
+
+services:
+
+  db:
+    image: postgres:14.3-alpine3.15
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: swapi_etl
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: swapi
+    container_name: swapi_db
+    networks:
+      dev_network:
+        aliases:
+          - swapi_db
+
+  app:
+    build:
+      context: .
+    environment:
+      PG_USER: swapi_etl
+      PG_PASSWORD: 1234
+      PG_HOST: swapi_db
+      PG_DB: swapi
+    container_name: swapi_etl
+    volumes:
+      - ./app:/app
+    depends_on:
+      - db
+    networks:
+      dev_network:
